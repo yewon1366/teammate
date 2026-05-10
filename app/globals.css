@@ -1,5 +1,4 @@
-/* Tailwind CSS를 사용하기 위해 꼭 필요한 3줄이야 */
-/* 이 3줄이 없으면 Tailwind 스타일이 적용되지 않아 */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
