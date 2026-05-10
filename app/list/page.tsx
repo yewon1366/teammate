@@ -1,3 +1,4 @@
+export const revalidate = 0;
 import { supabase } from "../../lib/supabase";
 
 // 가짜 데이터 대신 Supabase에서 실제 데이터를 불러와
