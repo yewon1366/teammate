@@ -1,65 +1,79 @@
+"use client";
+import { useState } from "react";
 import { supabase } from "../../lib/supabase";
-
-// 가짜 데이터 대신 Supabase에서 실제 데이터를 불러와
-async function getPosts() {
-  const { data, error } = await supabase
-    .from("posts")
-    .select("*")
-    .order("created_at", { ascending: false });
-  if (error) {
-    console.error(error);
-    return [];
-  }
-  return data;
-}
-
-export default async function ListPage() {
-  const posts = await getPosts();
-
+export default function PostPage() {
+  const [projectName, setProjectName] = useState("");
+  const [field, setField] = useState("");
+  const [roles, setRoles] = useState("");
+  const [description, setDescription] = useState("");
+  const [contact, setContact] = useState("");
+  const [loading, setLoading] = useState(false);
+  const handleSubmit = async () => {
+    if (!projectName || !field || !roles || !description || !contact) {
+      alert("모든 항목을 입력해주세요!");
+      return;
+    }
+    setLoading(true);
+    const { error } = await supabase.from("posts").insert({
+      project_name: projectName,
+      field: field,
+      roles: roles,
+      description: description,
+      contact: contact,
+    });
+    setLoading(false);
+    if (error) {
+      alert("등록 중 오류가 발생했어요.");
+      console.error(error);
+    } else {
+      alert("구인글이 등록되었습니다!");
+      setProjectName("");
+      setField("");
+      setRoles("");
+      setDescription("");
+      setContact("");
+    }
+  };
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white border-b border-gray-100 px-6 py-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <a href="/" className="text-2xl font-bold text-indigo-600">TeamMate</a>
           <nav className="flex items-center gap-4">
-            <a href="/list" className="text-indigo-600 font-semibold">팀원 찾기</a>
+            <a href="/list" className="text-gray-600 hover:text-indigo-600 transition-colors">팀원 찾기</a>
             <a href="/post" className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors">팀원 구하기</a>
           </nav>
         </div>
       </header>
-
       <section className="px-6 py-12">
-        <div className="max-w-6xl mx-auto">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">팀원 구인 목록</h1>
-          <p className="text-gray-500">함께할 팀원을 찾고 있는 팀들이에요. 마음에 드는 팀에 지원해보세요!</p>
-        </div>
-      </section>
-
-      <section className="px-6 pb-20">
-        <div className="max-w-6xl mx-auto">
-          {posts.length === 0 ? (
-            <div className="text-center py-20 text-gray-400">
-              아직 등록된 구인글이 없어요. 첫 번째 구인글을 등록해보세요!
+        <div className="max-w-2xl mx-auto">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">팀원 구인글 등록</h1>
+          <p className="text-gray-500 mb-8">함께할 팀원을 찾고 있나요?</p>
+          <div className="bg-white rounded-2xl p-8 shadow-sm">
+            <div className="mb-6">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">프로젝트 이름 *</label>
+              <input type="text" placeholder="예) AI 기반 중고거래 플랫폼" value={projectName} onChange={(e) => setProjectName(e.target.value)} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {posts.map((post: any) => (
-                <div key={post.id} className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
-                  <span className="inline-block bg-indigo-50 text-indigo-600 text-sm font-medium px-3 py-1 rounded-full mb-4">
-                    {post.field}
-                  </span>
-                  <h2 className="text-lg font-bold text-gray-900 mb-2">{post.project_name}</h2>
-                  <p className="text-gray-500 text-sm mb-4 leading-relaxed">{post.description}</p>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md">{post.roles}</span>
-                  </div>
-                  <div className="border-t border-gray-100 pt-4">
-                    <p className="text-xs text-gray-400">📩 {post.contact}</p>
-                  </div>
-                </div>
-              ))}
+            <div className="mb-6">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">서비스 분야 *</label>
+              <input type="text" placeholder="예) 이커머스, 헬스케어" value={field} onChange={(e) => setField(e.target.value)} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
             </div>
-          )}
+            <div className="mb-6">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">모집 역할 *</label>
+              <input type="text" placeholder="예) 백엔드 개발자, 디자이너" value={roles} onChange={(e) => setRoles(e.target.value)} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            </div>
+            <div className="mb-6">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">팀 소개 *</label>
+              <textarea placeholder="팀과 프로젝트를 소개해주세요." value={description} onChange={(e) => setDescription(e.target.value)} rows={5} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none" />
+            </div>
+            <div className="mb-8">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">연락처 *</label>
+              <input type="text" placeholder="예) kakao: startup_kim" value={contact} onChange={(e) => setContact(e.target.value)} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            </div>
+            <button onClick={handleSubmit} disabled={loading} className="w-full bg-indigo-600 text-white py-4 rounded-xl text-lg font-semibold hover:bg-indigo-700 transition-colors disabled:opacity-50">
+              {loading ? "등록 중..." : "구인글 등록하기"}
+            </button>
+          </div>
         </div>
       </section>
     </div>
